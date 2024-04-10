@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safari
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: safari
+  template:
+    metadata:
+      labels:
+        app: safari
+    spec:
+      containers:
+        - name: safari
+          image: quay.io/dialvare/safari:latest
+          ports:
+            - containerPort: 5000
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+            runAsNonRoot: true
+      hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+          - "edge"
+      args:
+        - "/etc/hosts"
