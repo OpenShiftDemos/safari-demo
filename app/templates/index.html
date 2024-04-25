@@ -3,49 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <title>Safari app</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&family=Red+Hat+Mono:ital,wght@0,300..700;1,300..700&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #0c8e7a;
-            font-family: 'Arial', sans-serif;
+            background-color: #ffffff;
+            font-family: 'Titillium Web', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url(../static/assets/photo-1535940360221-641a69c43bac.avif);
+            background-position: center;
         }
 
         #deviceContainer {
-            background-color: #1e8420;
+            background-color: #9ad8d8;
             box-shadow: 0 4px 8px rgba(44, 3, 3, 0.1);
             border-radius: 10px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 2px solid #0b0b0b; 
+            border: 2px solid #0b0b0b;
+            background-image: url(../static/assets/app_bg.png); 
+            background-size:     cover;
+            padding: 50px 0px 0px 0px;
+            position: absolute;
+            z-index: 3;
+        }
+        #deviceBottom {
+           
+            box-shadow: 0 4px 8px rgba(44, 3, 3, 0.1);
+            border-radius: 0px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            border: 0px solid #0b0b0b;
+            background-image: url(../static/assets/2024_SD_Bottom.png); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            padding: 0px 0px 0px 0px;
+            position: absolute;
+            z-index: -1;
+            margin: 855px 0px 0px 0px;
+            width: 914px;
+            height: 54px;
         }
 
         video {
             width: 100px;
             height: 500px;
             border-bottom: 2px solid #ddd;
-            background-color: #24323b;
+            background-color: #28243b;
         }
 
         #textContainer {
             text-align: left;
-            padding: 5px;
-            background-color: #32a0e9;
-            color: #fff;
+            padding: 20px;
+            background-color: #b9dea3;
+            color: rgb(0, 0, 0);
             border-radius: 5px;
-            margin-top: 1px;
-            margin-bottom: 10px;
-            width: 800px;
+            margin-top: 0px;
+            margin-bottom: 20px;
+            width: 770px;
             height: auto;
             font-size: 15px;
             font-weight: bold;
-            text-shadow: 2px 2px 2px #000;
             border: 2px solid #0b0b0b;
+            padding: 50px -10px 0px 0px;
+            font-family: 'Titillium Web', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            flex-grow: 1;
         }
 
 
@@ -54,16 +87,17 @@
             gap: 20px;
             justify-content: center;
             width: 810px;
-            text-shadow: 2px 2px 2px #000;
             font-size: 15px;
+            padding-left: 50px;
+            padding-right: 50px;
             
         }
 
         .statBox {
             width: 90%;
             padding: 5px;
-            background-color: #3498db;
-            color: #fff;
+            background-color: #b9dea3;
+            color: rgb(0, 0, 0);
             border: none;
             border-radius: 5px;
             text-align: center;
@@ -71,17 +105,20 @@
         }
 
         .fixed-text {
-            border: 2px solid #e25813; 
-            padding: 5px; 
+            border: 2px solid #5e9266; 
+            padding: 0px 0px 0px 0px; 
+            margin: 0px 0px 0px 0px;
             border-radius: 5px; 
             margin-bottom: 5px;
-            background-color: #7f6ec6;
+            color:#000000;
+            background-color: #b9dea3;
+            font-weight: 600;
         }
 
 
         canvas {
             width: 90%;
-            margin: 14px;
+            margin: 30px;
             border: 2px solid #000; 
         }
 
@@ -89,22 +126,41 @@
             display: flex;
             width: 50%;
             justify-content: space-between;
-            margin-top: 30px; 
+            margin-top: 10px; 
             margin-bottom: 20px; 
         }
 
-        #play, #pause {
-            width: 48%;
+        #play {
+            width: 40%;
             height: 48%;
             padding: 10px 10px; 
             font-size: 14px;
-            background-color: #e25813;
+            background-color: #3d7317;
             color: #fff;
             border: none;
             cursor: pointer;
             border: 2px solid #000;
-            margin: 10px;
-            border-radius: 30%;
+            margin: 20px 0px 15px 30px;
+            border-radius: 5px;
+            background-image: url(../static/assets/2024_SD_art_Play.png); 
+            background-size: 100% 98%;
+            background-repeat: no-repeat;
+        }
+        #pause {
+            width: 40%;
+            height: 40%;
+            padding: 10px 10px; 
+            font-size: 14px;
+            background-color: #ee0000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border: 2px solid #000;
+            margin: 20px 30px 15px 0px;
+            border-radius: 5px;
+            background-image: url(../static/assets/2024_SD_art_Pause.png); 
+            background-size: 100% 98%;
+            background-repeat: no-repeat;
         }
 
     </style>
@@ -115,7 +171,7 @@
     <video controls style="display:none" src="{{ url_for('static', filename='safari.mp4') }}"></video>
     <canvas></canvas>
     <div id="textContainer">
-        <p id="description"></p>
+        <p id="description">Turn on the device</p>
     </div>
 
     <div id="statsContainer">
@@ -142,6 +198,7 @@
 </div>
 
 </div>
+<div id="deviceBottom" style="display:inline"></div>
 
 <script src="{{ url_for('static', filename='object_detector.js') }}" defer></script>
 
