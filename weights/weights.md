@@ -1,0 +1,1 @@
+# Safari model weights
