@@ -24,9 +24,3 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             runAsNonRoot: true
-      hostAliases:
-        - ip: "127.0.0.1"
-          hostnames:
-          - "edge"
-      args:
-        - "/etc/hosts"
