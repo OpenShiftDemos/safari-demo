@@ -2,11 +2,11 @@
 
 Welcome to the final instalment of this series on computer vision at the https://developers.redhat.com/topics/edge-computing[edge]. We have covered all the steps needed to be ready to deploy our model at the edge, from installing a https://www.redhat.com/en/blog/meet-single-node-openshift-our-smallest-openshift-footprint-edge-architectures[single node OpenShift] to use https://developers.redhat.com/products/red-hat-openshift-ai/overview[Red Hat OpenShift AI] to training our own computer vision model. If you missed any of the previous articles in this series, you can catch up here:
 
-* How to install single node OpenShift on AWS
-* How to install single node OpenShift on bare metal
-* Red Hat OpenShift AI installation and setup
-* Model training in Red Hat OpenShift AI
-* Prepare and label custom datasets with Label Studio
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_aws.adoc[How to install single node OpenShift on AWS]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_baremetal.adoc[How to install single node OpenShift on bare metal]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/rhoai_setup.adoc[Red Hat OpenShift AI installation and setup]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/training_rhoai.adoc[Model training in Red Hat OpenShift AI]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/label_dataset.adoc[Prepare and label custom datasets with Label Studio]
 * **Deploy computer vision applications at the edge with MicroShift**
 
 == Deploying our application with MicroShift
@@ -26,6 +26,9 @@ Red Hat OpenShift Virtualization lets us create, run, and manage virtual machine
 1. In our https://console.redhat.com/[OpenShift Container Platform web console], we need to navigate to the **Operators** tab.
 2. Access the catalog via **OperatorHub**.
 3. Search the operator by typing `virtualization` (Figure 1).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/5.virtualization.png[title="After searching virtualization, select the OpenShift Virtualization operator that will populate in the search results."]
+
 4. Select the **OpenShift Virtualization** operator. On the right side of the screen, click **Install**.
 5. Scroll down in the configuration page and click **Install** again.
 6. Wait until the operator installation finishes and click **Create HyperConverged**. This custom resource is required to create and maintain the operator deployment.
@@ -69,7 +72,10 @@ Now that the operator is installed, we can create our RHEL virtual machine:
 1. Navigate to the **Virtualization** menu.
 2. Under this section click **VirtualMachines**.
 3. The dashboard will show the option to **Create VirtualMachine > From Template**.
-4. We will be redirected to the Catalog where different operating systems are listed. Find the **Red Hat Enterprise Linux 9 VM** (Figure 2). 
+4. We will be redirected to the Catalog where different operating systems are listed. Find the **Red Hat Enterprise Linux 9 VM** (Figure 2).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/5.rhel-template.png[title="Select the Red Hat Enterprise Linux 9 VM template from the catalog."]
+
 5. To edit the template, on the right side of the screen, complete the following fields:
 * **VirtualMachine name:** `edge` (type your preferred name for the VM).
 * **CPU | Memory:** increase it to `2 CPU` and `8 GiB Memory`.
@@ -425,12 +431,16 @@ virtctl vnc edge
 ----
 Finally, open Google Chrome and type the route in the search bar. Don’t forget to append the 5000 port at the end of the route. And that’s it. Enjoy your Safari application (Figure 3) detecting and learning about animals in the wild!
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/5.detection.png[title="Safari application running on MicroShift, detecting a giraffe and displaying its information."]
+
 == Video demo
 
 Watch the following video demo, which covers the Red Hat Device Edge set up, the Safari container image creation, and its later deployment.
 
+video::https://www.youtube.com/watch?v=Gn8o3RzkqkQ[]
+
 == Conclusion
 
-As we draw the curtains on this series, we reflect on a journey that has traversed the realms of single node OpenShift, both on https://developers.redhat.com/articles/2024/04/23/how-install-single-node-openshift-bare-metal[bare metal] and https://developers.redhat.com/articles/2024/04/29/how-install-single-node-openshift-aws[in the cloud]. From the initial stages of deploying OpenShift on diverse infrastructures, to the https://developers.redhat.com/articles/2024/05/01/red-hat-openshift-ai-installation-and-setup[meticulous preparation of our environment] for https://developers.redhat.com/articles/2024/04/29/model-training-red-hat-openshift-ai?auHash=DrAa2QwNRyDBcxjgG25obNaTB_YnbHpYq6ecf5KUtxg[YOLO object detection model training], the convergence of these technologies has culminated in the deployment of our animal recognition application on MicroShift. By simulating an edge device, we are able to showcase our Safari application running on resource-constrained devices.
+As we draw the curtains on this series, we reflect on a journey that has traversed the realms of single node OpenShift, both on https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_baremetal.adoc[bare metal] and https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_aws.adoc[in the cloud]. From the initial stages of deploying OpenShift on diverse infrastructures, to the https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/rhoai_setup.adoc[meticulous preparation of our environment] for https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/training_rhoai.adoc[YOLO object detection model training], the convergence of these technologies has culminated in the deployment of our animal recognition application on MicroShift. By simulating an edge device, we are able to showcase our Safari application running on resource-constrained devices.
 
 We thank you for accompanying us on this technological journey. We hope it has been an enjoyable process and easy to replicate. From here on, a great world of possibilities opens up. There are no limits to the wide variety of artificial intelligence applications that can be used to help on the edge. It's your turn to let your imagination fly and keep discovering this exciting technological world.
