@@ -301,11 +301,12 @@ Once you've accessed the webpage and logged in, we can begin labeling our custom
 
 From the project dashboard, select **Label all tasks**, which will take you to the first image to label. To select a label, you can either click the corresponding label or press the number on your keyboard that corresponds to the label. For example, the `A380` is labeled as `1`. After pressing 1, click and drag on the image to create a bounding box where the aircraft is located (Figure 3). 
 
-Remember to create a different box for each aircraft present in the image. If in the same image both aircraft types coexist, make sure you are selecting the corresponding label for each one. When done, select the next image on the left side of the screen. Figure 4 shows another example for a `B747` (class`2`).
+Remember to create a different box for each aircraft present in the image. If in the same image both aircraft types coexist, make sure you are selecting the corresponding label for each one. When done, select the next image on the left side of the screen. Figure 4 shows another example for a `B747` (class `2`).
 
 Once you are done labeling, **Submit** them, and return to the project dashboard. In the upper-right corner, select **Export**. Since we will use this data to train YOLO object detection models, export the data in the **YOLO** format (Figure 5).
 
 This will trigger the prepared and labeled dataset download. When finished, unzip the file. Now, let’s take a look at the folders that it includes: 
+
 * `/images`: contains the original images. 
 * `/labels`: contains a single text file per image. Each line in the file represents the class number and the coordinates for each bounding box.  
 * `classes.txt`: list with the labels in order. In our case: `A380`, `B747`.
