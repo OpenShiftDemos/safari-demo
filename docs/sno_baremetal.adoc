@@ -63,23 +63,38 @@ cat ~/.ssh/id_rsa.pub
 
 Now, we will switch to our bare metal virtual console. There, we need to configure our node to boot using our discovery ISO. In my case, I’m using an iDRAC to manage my node, as shown in Figure 2. 
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.idrac.png[title="iDRAC console to manage the bare metal node."]
+
 If your node management differs from mine, adapt the following steps, based on your environment specifications. Depending on the host, this procedure could be slightly different, but the steps are pretty similar overall.
 
 1. Open your host console. Click **Launch Virtual Console**.
 2. Select **Connect Virtual Media**.
 3. There, we should be able to **Choose the File** and select the discovery ISO we just downloaded.
-4. Select **Map the device** (Figure 3). 
+4. Select **Map the device** (Figure 3).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.map-device.png[title="Virtual console view of device mapping for the discovery ISO."]
+
 5. Navigate to the **Boot** menu. We will need to configure our host to boot using the virtual media.
 6. Select **Virtual CD/DVD/ISO** from the list (Figure 4).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.boot-virtual-media.png[title="Virtual console view of the boot menu with Virtual CD/DVD/ISO selected as the First Boot Device."]
+
 7. Finally, all we need to do is reboot the system. Click **Power Off System** and then **Power On the System** again. With this, the Discovery installation will begin (Figure 5).
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.host-discovery-boot.png[title="Boot-up option to Boot to Virtual CD Boot Requested by iDRAC."]
+
 Once finished, go back to the OpenShift Red Hat Hybrid Cloud Console, where we will be able to see that our machine has been automatically recognized and listed in the Host Inventory section. Make sure to wait for the Status to change to Ready before proceeding to the next steps.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.host-inventory.png[title="In the host discovery section of the wizard, confirm that the host’s status is ready."]
 
 At this point we can directly jump to the end of the process. 
 
 1. Click **Next** to navigate to the Storage section, where we can list all the disks present in our node. 
 2. Click **Next** again, and that will guide you to the Networking section. 
 3. Our node has already configured all the networking infrastructure, so all we have to do is select the **Machine network** IP range we want to use. To configure your environment network, refer to the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.15/html/installing/installing-on-bare-metal#installing-bare-metal[OpenShift networking documentation]. Figure 7 shows what my networking configuration looks like.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.networking.png[title="Networking configuration example."]
+
 4. In the Networking section of the wizard, confirm that **Machine Network** is correct and that the **Host SSH Public Key** box is checked.
 
 After completing these configurations in our host, we will be ready to move onto the SNO installation process.
@@ -93,11 +108,17 @@ Now that our host is properly configured to allocate a single node OpenShift clu
 3. The installer will automatically complete all the steps needed to have the node up and running. We can track this process through the progress bar. It should take around 30 minutes to finish the installation. However, this can vary depending on your host’s resources.
 4. Once it finishes you should see several checkmarks to show that your installation is complete (Figure 8).
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.installation-finish.png[title="After the installation has been initiated, confirm in the installation wizard window that the Control Plane and Initialization processes have been completed, and that the Installation has successfully been completed."]
+
 == Accessing our SNO
 
-Once the installation has finished, we can access the OpenShift node using the credentials provided under the installation bar. You should be able to find the URL to the Web console, the kubeadmin user, and the password that we will use to authenticate. 
+Once the installation has finished, we can access the OpenShift node using the credentials provided under the installation bar. You should be able to find the URL to the Web console, the kubeadmin user, and the password that we will use to authenticate.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.credentials.png[title="In the OpenShift node installation window, view the Web Console URL, username, and password for authentication."]
 
 To access the web console, click **Launch OpenShift Console** (Figure 10). A new pop-up window will appear. You will probably see a message warning you about the security of the page. This has to do with the fact that the certificates in OpenShift have been signed by ourselves and not any certified CA. We can safely ignore it.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1b.troubleshooting.png[title="In the OpenShift node login window, copy and paste the log entries to launch the OpenShift Console."]
 
 [NOTE]
 ====
@@ -109,6 +130,9 @@ Once on the login page, we will use the credentials provided after the SNO insta
 However, some users may prefer to use the command line instead of the graphical interface, which we can do to run most of the commands. Follow the next steps to find the login command and begin using the command-line interface.
 
 1. Once on the Web Console, connect to the SNO by clicking on the current user **kube:admin** in the upper right corner. Select **Copy login command** (Figure 11).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1ab.loging-command.png[title="In the Web Console, choose the Copy login command option under the user drop-down."]
+
 2. This will open a new tab in our web browser. If we click **Display token**, we can copy the oc login command shown and paste it into our terminal. By doing this, we should be able to interact with our SNO using the command line interface.
 
 Now run the following command to ensure everything is settled correctly:
@@ -130,8 +154,10 @@ There you have it: a fresh single node OpenShift with control and worker capabil
 
 The following video demo guides you through the process of  the viewer will be guided through the process of installing Single Node OpenShift on a physical bare metal machine using the Assisted Installer as described in this article.
 
+video::https://www.youtube.com/watch?v=Jz_5EbFTuZw[]
+
 == Next steps
 
 In this article, we have covered the deployment of single node OpenShift on a physical bare metal node utilizing the OpenShift Assisted Installer, thus simplifying the setup process for OpenShift clusters. 
 
-In the next article in this series, we will focus on the infrastructure configuration needed to deploy Red Hat OpenShift AI before starting to work on the object-detection model: https://developers.redhat.com/articles/2024/05/01/red-hat-openshift-ai-installation-and-setup[Red Hat OpenShift AI installation and setup].
+In the next article in this series, we will focus on the infrastructure configuration needed to deploy Red Hat OpenShift AI before starting to work on the object-detection model: https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/rhoai_setup.adoc[Red Hat OpenShift AI installation and setup].
