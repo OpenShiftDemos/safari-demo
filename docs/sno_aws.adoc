@@ -13,6 +13,8 @@ The goal of this series is to make use of the power and versatility of https://d
 
 A bit tricky to follow? Don't worry, we will see everything from scratch step by step. In the meantime, maybe the following diagram helps (Figure 1). Sometimes a picture is worth a thousand words.
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1ab.diagram.png[title="Diagram showing the different components involved in this series."]
+
 == Introduction
 
 In this article, we will embark on a step-by-step walkthrough for installing and configuring a single node OpenShift environment on Amazon Web Services (AWS). Throughout this journey, we'll guide you through the essential elements for a successful installation. From spinning up an AWS instance to configuring your Red Hat OpenShift environment, we'll cover every detail so you can later deploy and run containerized applications efficiently.
