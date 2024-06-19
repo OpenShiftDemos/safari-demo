@@ -57,6 +57,9 @@ In the AWS context, Route 53 uses "hosted zones" as containers for DNS records o
 1. Sign in to the https://console.aws.amazon.com/[AWS Management Console].
 2. Navigate to **Services** in the upper-left corner.
 3. In the drop-down menu, select **Networking & Content Delivery** and click **Route 53** (Figure 2).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.route-53.png[title="AWS console view of Networking & Content Delivery and Route 53 settings."]
+
 4. Now, go to **Registered domains** on the left side of the dashboard. There you should see a “No domains to display” message.
 5. Click **Register domains** in the upper-right corner and type your preferred domain name (e.g., `snodemo.com`). Click **Search**.
 6. At this point, you should see your domain name ready to purchase, if available, or a list with suggested domains, if unavailable. Select the domain name you want to purchase and click **Proceed to checkout**.
@@ -67,6 +70,8 @@ In the AWS context, Route 53 uses "hosted zones" as containers for DNS records o
 9. You will receive an email when your domain gets approved.
 10. Finally, navigate again to **Services > Networking & Content Delivery > Route 53** to verify that the hosted zone is present (Figure 3).
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.hosted-zone.png[title="Your AWS Route 53 Dashboard will confirm that the hosted zone you have created for your domain is active."]
+
 And that's all you need to configure your Route 53 service correctly. Now we can continue with the next step, creating an IAM user.
 
 == Creating the IAM user
@@ -75,6 +80,9 @@ When the AWS account was created, it was provisioned with a highly-privileged ac
 
 1. In the https://console.aws.amazon.com/[AWS Web Console], navigate again to **Services** in the upper-left corner.
 2. Click **Security, Identity & Compliance** and select the **IAM** option (Figure 4).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.iam.png[title="AWS console view of Security, Identity, & Compliance and IAM settings."]
+
 3. On the left column in the IAM Dashboard, go to the **Users** page.
 4. Click **Create user** on the upper-right corner.
 5. In the **User name** field, type `dialvare` (use the name of your new user). Then, click **Next**.
@@ -82,6 +90,9 @@ When the AWS account was created, it was provisioned with a highly-privileged ac
 7. Select **Create group** and follow this setup:
 * **User group name:** admin.
 * Check the **AdministratorAccess** policy (Figure 5).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.admin-group.png[title="AWS console view of group settings, policies, and information."]
+
 8. Click **Create user group** again, and you will be redirected to the user creation form.
 9. Select the new **admin** group name.
 10. Click **Next**, review your choices, and complete the user creation by clicking on **Create user**.
@@ -120,6 +131,9 @@ If you want to use your personal computer as the bastion node, skip this step an
 * - **Private key file format:** `.pem` (as we will be using ssh to connect).
 * Once completed, click **Create key pair**. The download process will start automatically.
 * On the Networking settings section, click **Edit** and complete the following fields (see Figure 6):
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.vm-config.png[title="AWS console view of the network settings needed to create your instance."]
+
 * - **VPC:** Go to the https://console.aws.amazon.com/vpcconsole/home?#CreateDefaultVpc:[VPC dashboard] and click **Create default VPC**. Go back to the **Networking** page, and click the Refresh arrow to automatically detect your new VPC.
 * - **Subnet:** Click the Refresh arrow, and `No Preference` will be selected automatically.
 * - **Auto-assign public IP:** `Enable`.
@@ -164,6 +178,9 @@ We are almost ready to go! It's time to install the `oc` client and download the
 1. Navigate to the https://console.redhat.com/openshift[Red Hat Hybrid Cloud Console] and log in using your Red Hat credentials.
 2. On the left panel, navigate to the **Downloads** page.
 3. Locate the **OpenShift command-line interface (oc)**, shown in Figure 7. Select **Linux** as the OS system and your architecture type.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.oc-client.png[title="Red Hat Console view of the OpenShift downloader showing the installer."]
+
 4. Right-click or command-click the **Download** button and select **Copy Link Address**.
 5. Back in the terminal, ensure you are connected to the AWS host machine and run the following command. Remember to paste the Link Address copied before:
 [source, bash]
@@ -171,6 +188,9 @@ We are almost ready to go! It's time to install the `oc` client and download the
 wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
 ----
 6. Back in the Hybrid Cloud Console, scroll down until you spot **OpenShift for x86_64 Installer**. Again, select **Linux** as the OS.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1a.installer.png[title="Red Hat Console view of the OpenShift downloader showing the oc command-line interface."]
+
 7. Instead of left-clicking Download, right-click or command-click the **Download** button and select **Copy Link Address**.
 8. In the Terminal window, run the following command:
 [source, bash]
@@ -275,6 +295,8 @@ Apart from managing our SNO from the web console, we can also use the command-li
 == Video demo
 
 This video covers the process of installing single node OpenShift in Amazon Web Services, starting from the user and network configuration, continuing with the host configuration, and finishing with the SNO installation itself.
+
+video::https://www.youtube.com/watch?v=5LGcRNch9QA[]
 
 == Next steps
 
