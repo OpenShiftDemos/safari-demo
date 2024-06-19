@@ -216,6 +216,7 @@ The files needed to build the image will be stored in the `app` folder. Navigate
 cd app/ && ls
 ----
 You will see:
+
 * **Containerfile**
 * **app.py:* Contains the logic to deploy a Flask server.
 * **/templates:** Folder structure needed for the Flask server.
