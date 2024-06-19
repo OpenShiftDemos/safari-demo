@@ -305,4 +305,6 @@ video::https://www.youtube.com/watch?v=5LGcRNch9QA[]
 
 In this article, we have explored the detailed process of successfully installing Red Hat single node OpenShift on Amazon Web Services (AWS). This initial step lays the foundation for creating and managing containers in a fully functional environment.
 
+In the next article in this series, we will focus on the infrastructure configuration needed to deploy Red Hat OpenShift AI before starting to work on the object-detection model: https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/rhoai_setup.adoc[Red Hat OpenShift AI installation and setup].
+
 The next step is configuring OpenShift for use in the context of artificial intelligence. The convergence of OpenShift and artificial intelligence opens up a world of possibilities for the development, deployment, and management of machine learning-driven applications. In our next article, get ready to explore the exciting terrain where container technology meets artificial intelligence.
