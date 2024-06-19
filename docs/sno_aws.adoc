@@ -23,7 +23,7 @@ The steps outlined in the blog are derived from the official https://access.redh
 
 [NOTE]
 ====
-If you are installing on bare metal, the steps vary from a public cloud installation. For this purpose, we have also created a separate blog that will guide you through the necessary steps to get SNO running on bare metal: https://developers.redhat.com/articles/2024/04/23/how-install-single-node-openshift-bare-metal[How to install single node OpenShift on bare metal].
+If you are installing on bare metal, the steps vary from a public cloud installation. For this purpose, we have also created a separate blog that will guide you through the necessary steps to get SNO running on bare metal: https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_baremetal.adoc[How to install single node OpenShift on bare metal].
 ====
 
 == Perks of single node OpenShift on the cloud
