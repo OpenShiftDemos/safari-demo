@@ -1,4 +1,4 @@
-= How to Install Single-Node OpenShift on AWS
+= How to install single node OpenShift on bare metal
 
 Welcome to the first chapter of this blog series where we delve into the world of computer vision at the https://developers.redhat.com/topics/edge-computing[edge]. Throughout this and the following installments, we will explore the process of setting up all the infrastructure to develop and train https://developers.redhat.com/topics/ai-ml[AI/ML] models and deploy them at the edge to perform real-time inference. This series will cover the following topics:
 
