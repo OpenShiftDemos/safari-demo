@@ -240,7 +240,7 @@ vi install-config.yaml
                  type: g4dn.metal
              replicas: 1
 ----
-5. The selected instance type (`g4dn.metal``) provides an entire physical host with GPU. We will be needing hardware accelerators to speed up our model training and a metal host will be required to be able to use OpenShift Virtualization. However, if you opt for not using GPUs or OpenShift Virtualization you can choose the instance type that best suits your use case.
+5. The selected instance type (`g4dn.metal`) provides an entire physical host with GPU. We will be needing hardware accelerators to speed up our model training and a metal host will be required to be able to use OpenShift Virtualization. However, if you opt for not using GPUs or OpenShift Virtualization you can choose the instance type that best suits your use case.
 
 [NOTE]
 ====
