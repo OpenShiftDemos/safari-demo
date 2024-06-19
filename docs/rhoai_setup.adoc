@@ -1,0 +1,205 @@
+= Red Hat OpenShift AI installation and setup
+
+Welcome to the third article in this series, which covers the process to prepare and run computer vision models at the https://developers.redhat.com/topics/edge-computing[edge]. The complete list of articles that compose the series are listed below:
+
+* How to install single node OpenShift on AWS
+* How to install single node OpenShift on bare metal
+* **Red Hat OpenShift AI installation and setup**
+* Model training in Red Hat OpenShift AI
+* Prepare and label custom datasets with Label Studio
+* Deploy computer vision applications at the edge with MicroShift
+
+== Introduction
+
+https://developers.redhat.com/products/red-hat-openshift-ai/overview[Red Hat OpenShift AI] is a comprehensive platform designed to streamline the development, deployment, and management of data science and machine learning applications in hybrid and multi-cloud environments. Leveraging the https://developers.redhat.com/products/openshift/overview[Red Hat OpenShift] https://developers.redhat.com/topics/app-platform[app dev platform], OpenShift AI empowers data science teams to exploit container orchestration capabilities for scalable and efficient deployment. 
+
+In this tutorial, we will prepare and install the Red Hat OpenShift AI operator and its components. This includes enabling the use of GPU and the storage configuration. The next article in this series will cover how to use the operator for AI model training.
+
+== LVM storage installation
+
+OpenShift AI will require some storage when creating workbenches and deploying notebooks. Therefore, one of the prerequisites will be to install the Logical Volume Manager Storage (LVMS) operator on our single node OpenShift (SNO). LVMS uses Linux Logical Volume Manager (LVM) as a back end to provide the necessary storage space for OpenShift AI in our SNO.
+
+[NOTE]
+====
+LVMS requires an empty dedicated disk to provision storage. To ensure that the operator can be installed and used, make sure you already have an empty disk available.
+====
+
+The easiest and most convenient way to install the operator is via the OpenShift web console:
+
+1. In your SNO web console, navigate to the **Operators** section on the left-hand menu.
+2. Select **OperatorHub**. This will show the marketplace catalog integrated in Red Hat OpenShift Container Platform (OCP) with the different operators available.
+3. In the search field, type `LVMS`.
+4. Select the **LVM Storage** operator (Figure 1) and click **Install** on the right side of the screen.
+5. Once in the configuration page, we can keep the default values. Press **Install** again.
+6. Wait a little while the installation finishes. Then, press the **Create LVMCluster** button that just appeared.
+7. In the configuration form you can change some of the parameters, like the instance name, device class, etc. Check the **default** box under **storage > deviceClasses** to use `lvms-vg1` as the default storage class.
+8. Press the **Create** button to start the custom resource creation. 
+9. You can wait for the Status to become Ready, or check the deployment process from the command line. In the Terminal connected to your SNO, run the following command:
+[source, bash]
+----
+watch oc get pods -n openshift-storage
+----
+10. Wait until you see all pods running:
+[source, bash]
+----
+NAME                                        READY         STATUS     RESTARTS      AGE
+lvms-operator-5656d84f77-ntlzm              1/1           Running    0             2m45s
+topolvm-controller-7dd48b6556-dg222         5/5           Running    0             109s
+topolvm-node-xgc79                          4/4           Running    0             87s
+vg-manager-lj4kd                            1/1           Running    0             109s
+----
+
+And just like that, you've deployed the first operator. But this is only the beginning. Let’s continue with the next step, to configure the node for GPU detection.
+
+== Node Feature Discovery installation
+
+Now, let's focus on configuring our node so the GPU can be detected. Red Hat’s supported approach is using the NVIDIA GPU Operator. Before installing it, there are a couple of prerequisites we need to meet. 
+
+The first one is installing the Node Feature Discovery Operator (NFD). This operator will manage the detection and configuration of hardware features in our SNO. The process will be quite similar to the one we just followed. 
+
+1. In the web console, locate the **Operators** section on the left menu again.
+2. Click **OperatorHub** to access the catalog.
+3. Once there, type `NFD` in the text box. We will get two results.
+4. In this case, I will install the operator that is supported by Red Hat (Figure 2). Click **Install**.
+5. This will prompt us to a second page with different configurable parameters. Let’s keep the default values and press the **Install** button.
+6. This will trigger the operator installation. Once finished, press **View Operator**.
+7. Under the NodeFeatureDiscovery component, click **Create instance**.
+8. As we did before, keep the default values and click **Create**. This instance proceeds to label the GPU node.
+9. Verify the installation by running the following command in your terminal:
+[source, bash]
+----
+watch oc get pods -n openshift-nfd
+----
+10. Wait until all the pods are running:
+[source, bash]
+----
+NAME                                          READY         STATUS     RESTARTS      AGE
+nfd-controller-manager-7758f5d99-9zpjw        2/2           Running    0             2m4s
+nfd-master-798b4885-4qfhq                     1/1           Running    0             10s
+nfd-worker-7gjhv                              1/1           Running    0             10s
+----
+11. The Node Feature Discovery Operator uses vendor PCI IDs to identify hardware in our node. `0x10de` is the PCI vendor ID that is assigned to NVIDIA, so we can verify if that label is present in our node by running this command:
+[source, bash]
+----
+oc describe node | egrep 'Labels|pci'
+----
+12. There, you can spot the `0x10de` tag present:
+[source, bash]
+----
+Labels:        beta.kubernetes.io/arch=amd64
+               feature.node.kubernetes.io/pci-102b.present=true
+               feature.node.kubernetes.io/pci-10de.present=true
+               feature.node.kubernetes.io/pci-14e4.present=true
+----
+
+The Node Feature Operator has been installed correctly. This means that our GPU hardware can be detected, so we can continue and install the NVIDIA GPU operator.
+
+== NVIDIA GPU Operator installation
+
+The NVIDIA GPU Operator will manage and automate the software provision needed to configure the GPU we just exposed. Follow these instructions to install the operator:
+
+1. Again, navigate to **Operators** in the web console. 
+2. Move to the **OperatorHub** section.
+3. In the search field, type `NVIDIA`.
+4. Select the **NVIDIA GPU Operator** (Figure 3) and press **Install**.
+5. It’s not necessary to modify any values. Click **Install** again.
+6. When the operator is installed, press **View Operator**.
+7. You can create the operand by clicking **Create instance** in the **ClusterPolicy** section.
+8. Skip the values configuration part and click **Create**.
+9. While the ClusterPolicy is created, we can see the progress from our terminal by running this command:
+[source, bash]
+----
+watch oc get pods -n nvidia-gpu-operator
+----
+10. You will know it has finished when you see an output similar to the following:
+[source, bash]
+----
+NAME                                                     READY     STATUS         RESTARTS      AGE
+gpu-feature-discovery-wkzpf                              1/1       Running        0             15d
+gpu-operator-76c4c94788-59rfh                            1/1       Running        0             15d
+nvidia-container-toolkit-daemonset-5t5dp                 1/1       Running        0             15d
+nvidia-cuda-validator-m5x4k                              0/1       Completed      0             15d
+nvidia-dcgm-8sn57                                        1/1       Running        0             15d
+nvidia-dcgm-exporter-hnjc6                               1/1       Running        0             15d
+nvidia-device-plugin-daemonset-467zm                     1/1       Running        0             15d
+nvidia-device-plugin-validator-bqfr6                     0/1       Completed      0             15d
+nvidia-driver-daemonset-412.86.202301061548-0-kpkjp      2/2       Running        0             15d
+nvidia-node-status-exporter-6chdx                        1/1       Running        0             15d
+nvidia-operator-validator-jj8c4                          1/1       Running        0             15d 
+----
+
+We have just completed the GPU setup. At this point, we will be able to select our GPU to be used in the model training. There is one last thing we need to take care of before installing OpenShift AI: enabling the Image Registry Operator.
+
+== Enable Image Registry Operator
+
+On platforms that do not provide shareable object storage, like bare metal, the OpenShift Image Registry Operator bootstraps itself as `Removed`. This allows OpenShift to be installed on these platform types. OpenShift AI will require enabling the image registry again in order to be able to deploy the workbenches.
+
+1. In your Terminal, ensure you don't have any running pods in the `openshift-image-registry` namespace:
+[source, bash]
+----
+oc get pod -n openshift-image-registry -l docker-registry=default
+----
+2. Now we will need to edit the registry configuration:
+[source, bash]
+----
+oc edit configs.imageregistry.operator.openshift.io
+----
+3. Under `storage: { }`, include the following lines, making sure you leave the claim name blank. This way, the PVC will be created automatically:
+[source, bash]
+----
+spec:
+...
+  storage:
+    pvc:
+      claim:
+----
+4. Also, change the `managementState` field from `Removed` to `Managed`:
+[source, bash]
+----
+spec:
+...
+  managementState: Managed
+----
+5. The PVC will be created as `Shared access (RWX)`. However, we will need to use `ReadWriteOnce`. Back in the Web Console, go to the **Storage** menu.
+6. Navigate to the **PersistentVolumeClaims** section.
+7. Make sure you have selected **Project: openshift-image-registry** at the top of the page. If you cannot find it, enable the **Show default namespaces** button.
+8. You will see the **image-registry-storage** PVC as Pending. The PVC cannot be modified, so we will need to delete the existing one and recreate it modifying the accessMode. Click on the three dots on the right side and select **Delete PersistentVolumeClaim**.
+9. It’s time to recreate the PVC again. To do so, click **Create PersistentVolumeClaim**.
+10. Complete the following fields as shown and click **Create** when done:
+* **StorageClass:** `lvms-vg1`.
+* **PersistentVolumeClaim name:** `image-registry-storage`.
+* **AccessMode:** `Single User (RWO)`.
+* **Size:** `30 GiB`.
+* **Volume mode:** `Filesystem`.
+11. In a few seconds, you will see the PVC status as **Bound** (Figure 4).
+
+With this last step, you have installed and configured the necessary infrastructure and prerequisites for Red Hat OpenShift AI. 
+
+== Red Hat OpenShift AI installation
+
+Red Hat OpenShift AI combines the scalability and flexibility of containerization with the capabilities of machine learning and data analytics. With OpenShift AI, data scientists and developers can efficiently collaborate, deploy, and manage their models and applications.
+
+You can have your OpenShift AI operator installed and working in just a couple of minutes:
+
+1. From the web console, navigate back to the **Operators** tab and select **OperatorHub**.
+2. Type `OpenShift AI` to search the component in the operators' catalog.
+3. Select the **Red Hat OpenShift AI** operator (Figure 5) and click **Install**.
+4. The default values will already be configured so we will not need to modify any of them. To start the installation press the **Install** button again.
+5. Once the status has changed to Succeeded we can confirm that the operator deployment has finished.
+6. Now we need to create the required custom resource. Select **Create DataScienceCluster**.
+7. Keep the pre-defined values and press **Create**.
+8. Wait for the Phase to become Ready. This will mean that the operator is ready to be used.
+9. We can access the OpenShift AI web console from the OCP console. On the right side of the top navigation bar, you will find a square icon formed by 9 smaller squares. Click it and select **Red Hat OpenShift AI** from the drop-down menu, as shown in Figure 6.
+10. A new tab will open. Log in again using your OpenShift credentials (kubeadmin and password).
+
+Welcome to the Red Hat OpenShift AI landing page (Figure 7). It is on this platform where the magic will happen, as you'll learn in the next article. 
+
+== Video demo
+
+The following video covers the process of installing Red Hat OpenShift AI on the single node, along with the underlying operators like Logical Volume Manager Storage (LVMS), Node Feature Discovery (NFD), and NVIDIA GPU.
+
+== Next steps
+
+In this article, we have made use of different operators that are indispensable for the installation of Red Hat OpenShift AI. We started with the storage setup and ended with the GPU enablement, which will speed up the training process that we will see in our next article. 
+
+From here, we will move away from infrastructure and enter the world of artificial intelligence and computer vision. Check out the next article to keep learning about Red Hat OpenShift AI: https://developers.redhat.com/articles/2024/04/29/model-training-red-hat-openshift-ai#[Model training in Red Hat OpenShift AI].
