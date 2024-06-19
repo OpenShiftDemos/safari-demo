@@ -173,7 +173,7 @@ spec:
 ----
 oc apply -f ls_pvc.yaml
 ----
-2. Apply the deployment. This will pull the latest `label-studio`` image and will connect the PVCs and the PostgreSQL database to the application:
+2. Apply the deployment. This will pull the latest `label-studio` image and will connect the PVCs and the PostgreSQL database to the application:
 [source, bash]
 ----
 vi ls_deployment.yaml
