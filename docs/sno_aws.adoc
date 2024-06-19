@@ -290,6 +290,9 @@ Once all the steps are completed, to access the web console, paste in your brows
 Apart from managing our SNO from the web console, we can also use the command-line interface to manage our OpenShift node. Follow the next steps to connect to your cluster through the command line.
 
 1. Once on the Web Console, connect to the SNO by clicking on the current user **kube:admin** in the upper right corner. Select **Copy login command**.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/1ab.loging-command.png[title="In the Web Console, choose the Copy login command option under the user dropdown."]
+
 2. This will open a new tab in our web browser. If we click **Display token**, we can copy the `oc` login command shown and paste it into our terminal. By doing this, we should be able to interact with our SNO using the command line interface.
 
 == Video demo
