@@ -1,0 +1,281 @@
+= How to Install Single-Node OpenShift on AWS
+
+Welcome to the first chapter of this blog series where we delve into the world of computer vision at the https://developers.redhat.com/topics/edge-computing[edge]. Throughout this and the following installments, we will explore the process of setting up all the infrastructure to develop and train https://developers.redhat.com/topics/ai-ml[AI/ML] models and deploy them at the edge to perform real-time inference. This series will cover the following topics:
+
+* **How to install single node OpenShift on AWS**
+* How to install single node OpenShift on bare metal
+* Red Hat OpenShift AI installation and setup
+* Model training in Red Hat OpenShift AI
+* Prepare and label custom datasets with Label Studio
+* Deploy computer vision applications at the edge with MicroShift
+
+The goal of this series is to make use of the power and versatility of https://developers.redhat.com/products/openshift/overview[Red Hat OpenShift] for the preparation and deployment of computer vision applications at the edge. In environments where resources are limited, https://www.redhat.com/en/blog/meet-single-node-openshift-our-smallest-openshift-footprint-edge-architectures[single node OpenShift] (SNO) can be used as a data center for model processing and training. It can run on both cloud and bare metal nodes. On such nodes we will deploy https://developers.redhat.com/products/red-hat-openshift-data-science/overview[Red Hat OpenShift AI] and the necessary components to enable GPU hardware and accelerate our model training. OpenShift AI gives us the possibility to use notebooks where we will import our YOLO algorithm and the necessary dataset for training. Finally, with Red Hat OpenShift Virtualization, we will simulate a device at the edge. There, we are going to install MicroShift and deploy our Safari application on top of it. This app will be able to detect animals in real time and give us information about them.
+
+A bit tricky to follow? Don't worry, we will see everything from scratch step by step. In the meantime, maybe the following diagram helps (Figure 1). Sometimes a picture is worth a thousand words.
+
+== Introduction
+
+In this article, we will embark on a step-by-step walkthrough for installing and configuring a single node OpenShift environment on Amazon Web Services (AWS). Throughout this journey, we'll guide you through the essential elements for a successful installation. From spinning up an AWS instance to configuring your Red Hat OpenShift environment, we'll cover every detail so you can later deploy and run containerized applications efficiently.
+
+The steps outlined in the blog are derived from the official https://access.redhat.com/documentation/en-us/openshift_container_platform/4.15/html/installing/installing-on-aws[OpenShift documentation], which can be referenced for further details and additional configurations.
+
+[NOTE]
+====
+If you are installing on bare metal, the steps vary from a public cloud installation. For this purpose, we have also created a separate blog that will guide you through the necessary steps to get SNO running on bare metal: https://developers.redhat.com/articles/2024/04/23/how-install-single-node-openshift-bare-metal[How to install single node OpenShift on bare metal].
+====
+
+== Perks of single node OpenShift on the cloud
+
+In the past decade, we have witnessed exponential growth in the interest and adoption of emerging technologies such as artificial intelligence (AI), edge computing and the cloud. The convergence of these trends is shaping a dynamic and transformative technological landscape. AI propels innovation in fields like machine learning and intelligent automation, while edge computing brings processing capabilities closer to where data is generated. Simultaneously, the cloud remains the epicenter of the digital revolution, offering unparalleled scalability and flexibility.
+
+When it comes to edge computing, a small single node can fit into constrained spaces or remote deployments far easier than a full rack of servers. That small size (and lower power) can mean the difference between having an on-site deployment or not. Best of all, it’s still OpenShift, so all the cloud tools, processes, and expertise that teams may already have, apply here. While nodes can be physical (a small box on site), they can also be cloud-based. For simplicity purposes (and not assuming that everyone has spare, unused hardware on hand), we’ll have a look at the latter.
+
+Single node OpenShift is an ideal solution for developers and testing teams seeking agility in development environments. As the name suggests, this configuration allows running a single instance of OpenShift on a lone node, offering control and worker capabilities at the same time. With a smaller footprint, single node OpenShift provides a consistent and comprehensive environment for creating, testing, and deploying container-based applications without compromising the power of OpenShift. The https://access.redhat.com/documentation/en-us/openshift_container_platform/4.15/html/installing/installing-on-a-single-node#additional-requirements-for-installing-sno-on-a-cloud-provider_install-sno-installing-sno-with-the-assisted-installer[minimum system requirements] for deploying SNO on the cloud are 8 vCPU cores, 16GB of RAM, and 120GB of storage.
+
+== Choosing and creating your cloud account
+
+Now that we’ve covered some of the background information and basic concepts about the technologies involved in this demo, it is time to start our hands-on deployment process.
+
+In this example, we have decided to use AWS as the cloud provider, but remember that OpenShift can be deployed in other cloud vendors if desired. The following list shows the SNO https://access.redhat.com/documentation/en-us/openshift_container_platform/4.14/html/installing/installing-on-a-single-node#supported-cloud-providers-for-single-node-openshift_install-sno-installing-sno-with-the-assisted-installer[supported cloud providers] and their CPU architectures:
+
+* **Amazon Web Service (AWS)**: x86_64 and aarch64
+* **Google Cloud Platform (GCP):** x86_64 and aarch64
+* **Microsoft Azure:** x86_64
+
+Depending on the cloud provider you choose, the steps described can vary slightly, so if you decide not to use AWS, we strongly encourage you to use this guide as a reference and supplement it with the official documentation.
+
+That being said, if you are using AWS as your cloud provider, make sure you have an active AWS account, or create a new AWS account from the https://aws.amazon.com/[Amazon Web Services home page].
+
+== Creating and configuring the Route 53 service
+
+Amazon Route 53 is a Domain Name System (DNS) service provided by Amazon Web Services (AWS). Its primary function is to enable the resolution of domain names to IP addresses and vice versa, thereby facilitating the management of network infrastructure. The need to utilize Route 53 when installing OpenShift on AWS stems from the critical importance of efficiently managing domain names and DNS resolution to ensure accessibility and connectivity for OpenShift components.
+
+In the AWS context, Route 53 uses "hosted zones" as containers for DNS records of a specific domain. Each hosted zone in Route 53 stores information about how a particular domain name should be resolved. To create a hosted zone, you must first have a domain name, that can be purchased directly through AWS, as shown below. If you need more details, refer to https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html#domain-register-procedure-section[Amazon's documentation on Route 53].
+
+1. Sign in to the https://console.aws.amazon.com/[AWS Management Console].
+2. Navigate to **Services** in the upper-left corner.
+3. In the drop-down menu, select **Networking & Content Delivery** and click **Route 53** (Figure 2).
+4. Now, go to **Registered domains** on the left side of the dashboard. There you should see a “No domains to display” message.
+5. Click **Register domains** in the upper-right corner and type your preferred domain name (e.g., `snodemo.com`). Click **Search**.
+6. At this point, you should see your domain name ready to purchase, if available, or a list with suggested domains, if unavailable. Select the domain name you want to purchase and click **Proceed to checkout**.
+7. On the following page you will need to complete your information with some parameters like the ones listed below. Navigate throughout the different sections by clicking **Next**.
+* **Domain pricing options:** domain name, duration, auto-renew.
+* **Contact information:** organization, name, email, etc.
+8. Before clicking **Submit**, you should see this message: “Route 53 automatically creates a hosted zone for each new domain you register.” This means that once you have purchased the new domain, you don't need to worry about creating the hosted zone, as AWS will set it up automatically.
+9. You will receive an email when your domain gets approved.
+10. Finally, navigate again to **Services > Networking & Content Delivery > Route 53** to verify that the hosted zone is present (Figure 3).
+
+And that's all you need to configure your Route 53 service correctly. Now we can continue with the next step, creating an IAM user.
+
+== Creating the IAM user
+
+When the AWS account was created, it was provisioned with a highly-privileged account. However, the creation of a specific IAM user for OpenShift on AWS is a recommended practice to add an additional layer of security and facilitate the management and auditing of the accesses and actions performed by OpenShift on the AWS infrastructure. The official AWS documentation for creating an IAM user can be found https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console[here].
+
+1. In the https://console.aws.amazon.com/[AWS Web Console], navigate again to **Services** in the upper-left corner.
+2. Click **Security, Identity & Compliance** and select the **IAM** option (Figure 4).
+3. On the left column in the IAM Dashboard, go to the **Users** page.
+4. Click **Create user** on the upper-right corner.
+5. In the **User name** field, type `dialvare` (use the name of your new user). Then, click **Next**.
+6. Verify that the **Add user to group** box is selected. We need to give it some privileges.
+7. Select **Create group** and follow this setup:
+* **User group name:** admin.
+* Check the **AdministratorAccess** policy (Figure 5).
+8. Click **Create user group** again, and you will be redirected to the user creation form.
+9. Select the new **admin** group name.
+10. Click **Next**, review your choices, and complete the user creation by clicking on **Create user**.
+11. Back in the **Users** page, select your new user. In my case, I’ll select **dialvare**.
+12. There, you will find some information about the user. Navigate to the **Security credentials** tab.
+13. Scroll down to the Access keys section and select **Create access key**.
+14. Check the **Command Line Interface (CLI)** option.
+15. Check the Confirmation box at the bottom and click **Next**.
+16. You can skip the description tag step and click **Create access key**.
+17. Copy the **Access key** and the **Secret access key**, as you will use them in the future to fire up the SNO installation. You won’t have access to the secret later, so it’s very important that you complete this step.
+18. To close this window, click **Done**.
+
+With that, we have completed most of the prerequisites for the SNO installation. We have ensured that our network connections are configured thanks to the hosted zone and the Route 53 service, and we have created our OpenShift Container Platform (OCP) user with admin privileges. Now it's time to create the machine from which we will launch the installation.
+
+== Create AWS instance
+
+To make sure that everyone following this article can complete the process from start to finish, we are going to create an AWS instance to avoid possible hardware limitations in some users.
+
+[NOTE]
+====
+If you want to use your personal computer as the bastion node, skip this step and jump to the “SSH key pair creation” section.
+====
+
+1. Navigate to the https://console.aws.amazon.com/[AWS Console].
+2. In the upper-left corner, click again on **Services**.
+3. In the drop-down menu, click **Compute** and then **EC2** on the right side to create the virtual server.
+4. On the **Resources** dashboard, press **Launch instance**.
+5. Complete the following fields:
+* **Name:** `host` (insert any preferred name).
+* **Amazon Machine Image (AMI):** `Amazon Linux 2023 AMI`.
+* **Architecture:** `64-bit (x86)` (you can use Arm architecture if preferred).
+* **Instance type:** `c5.2xlarge`. This instance has enough resources to manage the installation of our SNO, but feel free to use a more convenient one for you.
+* **Key pair:** This will be used to connect to the machine. Click **Create new key pair** and configure it:
+* - **Key pair name:** `my-keys` (type any preferred name).
+* - **Key pair type:** `RSA`.
+* - **Private key file format:** `.pem` (as we will be using ssh to connect).
+* Once completed, click **Create key pair**. The download process will start automatically.
+* On the Networking settings section, click **Edit** and complete the following fields (see Figure 6):
+* - **VPC:** Go to the https://console.aws.amazon.com/vpcconsole/home?#CreateDefaultVpc:[VPC dashboard] and click **Create default VPC**. Go back to the **Networking** page, and click the Refresh arrow to automatically detect your new VPC.
+* - **Subnet:** Click the Refresh arrow, and `No Preference` will be selected automatically.
+* - **Auto-assign public IP:** `Enable`.
+* - For the Firewall set up, check the **Create security group** box.
+* **Configure storage:** 1x8GiB gp3 Root volume.
+6. On the right side, now you can press **Launch instance**. Wait until the creation finishes successfully.
+7. Select **Connect to your instance**. This will open a new tab.
+8. Navigate to the **SSH client** tab where the steps to connect using SSH are described. Copy the command displayed at the bottom.
+9. Open a new terminal and give the keys file the right permissions. Then, paste the command. Remember to modify the path to your keys file.
+[source, bash]
+----
+chmod 400 ~/Downloads/my-keys.pem
+----
+[source, bash]
+----
+ssh -i ~/Downloads/my-keys.pem ec2-user@ec2-16-171-254-104.eu-north-1.compute.amazonaws.com
+----
+
+We have just created and connected to our host machine. From here, the following steps will be done from this AWS machine as we will use it to launch the installation.
+
+== SSH key pair creation
+During the single node installation, we will need to supply an SSH public key to the installation program. This key is going to be transmitted to the node and will serve as a means of authenticating SSH access to it. Subsequently, the key is appended to the `~/.ssh/authorized_keys` list for the core user in the node, enabling password-less authentication. You can find more detailed https://access.redhat.com/documentation/en-us/openshift_container_platform/4.15/html/installing/installing-on-aws#ssh-agent-using_installing-aws-default[documentation] if you need it.
+
+1. In your terminal, run the following command to create the SSH keys:
+[source, bash]
+----
+ssh-keygen -t ed25519 -N '' -f ${HOME}/.ssh/ocp4-aws-key
+----
+
+2. Now, check and copy your new public key:
+[source, bash]
+----
+cat ${HOME}/.ssh/ocp4-aws-key.pub
+----
+
+With this, the ssh keys have been generated and we can use them during the SNO installation.
+
+== Installing the OCP client and getting the installation program
+
+We are almost ready to go! It's time to install the `oc` client and download the installation program in our AWS instance.
+
+1. Navigate to the https://console.redhat.com/openshift[Red Hat Hybrid Cloud Console] and log in using your Red Hat credentials.
+2. On the left panel, navigate to the **Downloads** page.
+3. Locate the **OpenShift command-line interface (oc)**, shown in Figure 7. Select **Linux** as the OS system and your architecture type.
+4. Right-click or command-click the **Download** button and select **Copy Link Address**.
+5. Back in the terminal, ensure you are connected to the AWS host machine and run the following command. Remember to paste the Link Address copied before:
+[source, bash]
+----
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
+----
+6. Back in the Hybrid Cloud Console, scroll down until you spot **OpenShift for x86_64 Installer**. Again, select **Linux** as the OS.
+7. Instead of left-clicking Download, right-click or command-click the **Download** button and select **Copy Link Address**.
+8. In the Terminal window, run the following command:
+[source, bash]
+----
+wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-linux.tar.gz
+----
+9. Once both downloads finish, unzip the files:
+[source, bash]
+----
+tar -xvf openshift-client-linux.tar.gz
+tar -xvf openshift-install-linux.tar.gz
+----
+10. To complete the oc installation, move the extracted files to the user path:
+[source, bash]
+----
+sudo mv oc kubectl /usr/local/bin
+----
+11. Before starting the OCP installation, move the installation file to the user path, too:
+[source, bash]
+----
+sudo mv openshift-install /usr/local/bin
+----
+12. To check the version you will be installing, run:
+[source, bash]
+----
+openshift-install version
+----
+
+All good? Now we can confirm that we are ready to deploy the single node OpenShift.
+
+== Single node deployment
+
+The moment has arrived. In a matter of minutes we will have our SNO deployed and ready to work.
+
+1. On the terminal, you will need to create a config file to specify the cluster details. Run:
+[source, bash]
+----
+openshift-install create install-config --dir=./
+----
+2. Use the arrow keys in your keyboard and select the following configuration:
+* **SSH Public Key:** `/home/ec2-user/.ssh/ocp4-aws-key.pub`.
+* **Platform:** `aws`.
+* **AWS Access Key ID:** Paste the one copied when you created your user.
+* **AWS Secret Access Key ID:** Paste the one copied when you created your user.
+* **Region:** Select the region where the host was created (`eu-north-1`, in my case).
+* **BaseDomain:** Select your domain (`snodemo.com`, in my case).
+* **Cluster name:** Type your preferred name for the cluster; I will choose `sno`.
+* **Pull Secret:** Copy and paste your pull secret from the https://console.redhat.com/openshift/downloads#tool-pull-secret[Hybrid Cloud Console].
+3. Now you can take a look at the newly created config file:
+[source, bash]
+----
+vi install-config.yaml
+----
+4. To deploy a single node OpenShift, the `controlPlane.replicas` setting in the `install-config.yaml` file should be set to `1` and the `compute.replicas` setting should be `0`. Also, we need to specify the EC2 instance type.
+[source, bash]
+----
+   compute:
+           - architecture: amd64
+             hyperthreading: Enabled
+             name: worker
+             platform: {}
+             replicas: 0
+           controlPlane:
+             architecture: amd64
+             hyperthreading: Enabled
+             name: master
+             platform:
+               aws:
+                 type: g4dn.metal
+             replicas: 1
+----
+5. The selected instance type (`g4dn.metal``) provides an entire physical host with GPU. We will be needing hardware accelerators to speed up our model training and a metal host will be required to be able to use OpenShift Virtualization. However, if you opt for not using GPUs or OpenShift Virtualization you can choose the instance type that best suits your use case.
+
+[NOTE]
+====
+OpenShift Virtualization is currently only supported on AWS bare metal instances and on-premise bare metal hosts. See OpenShift Virtualization https://docs.openshift.com/container-platform/4.15/virt/install/preparing-cluster-for-virt.html#supported-platforms_preparing-cluster-for-virt[documentation].
+====
+
+6. Finally, run the installation command. The installer will use the configuration file we just modified:
+[source, bash]
+----
+openshift-install create cluster --dir=./ --log-level=debug
+----
+7. When the installation finishes, the installer will provide you the kubeadmin user and the password along with your OpenShift Web Console URL. Note them down.
+8. In order to be able to access your SNO from a terminal, run the following command to expose the kubeconfig file:
+[source, bash]
+----
+export KUBECONFIG=/home/ec2-user/auth/kubeconfig
+----
+
+And with all that, you should now have access to your OpenShift web console. But before accessing the web console, there is an additional step we need to accomplish in order to be able to deploy the Logical Volume Manager Storage (LVMS) operator later in our cluster. LVMS requires us to have an empty disk, which in this case can be provided by using an EBS volume. Check the official https://docs.aws.amazon.com/ebs/latest/userguide/ebs-creating-volume.html#ebs-create-empty-volume[AWS documentation] to create and attach the volume to your SNO instance.
+
+Once all the steps are completed, to access the web console, paste in your browser the URL provided at the end of the installation process. Log in using the kubeadmin user and its password. With this, we have successfully logged into the single node OpenShift Web Console.
+
+== Connect your cluster to the command line
+
+Apart from managing our SNO from the web console, we can also use the command-line interface to manage our OpenShift node. Follow the next steps to connect to your cluster through the command line.
+
+1. Once on the Web Console, connect to the SNO by clicking on the current user **kube:admin** in the upper right corner. Select **Copy login command**.
+2. This will open a new tab in our web browser. If we click **Display token**, we can copy the `oc` login command shown and paste it into our terminal. By doing this, we should be able to interact with our SNO using the command line interface.
+
+== Video demo
+
+This video covers the process of installing single node OpenShift in Amazon Web Services, starting from the user and network configuration, continuing with the host configuration, and finishing with the SNO installation itself.
+
+== Next steps
+
+In this article, we have explored the detailed process of successfully installing Red Hat single node OpenShift on Amazon Web Services (AWS). This initial step lays the foundation for creating and managing containers in a fully functional environment.
+
+The next step is configuring OpenShift for use in the context of artificial intelligence. The convergence of OpenShift and artificial intelligence opens up a world of possibilities for the development, deployment, and management of machine learning-driven applications. In our next article, get ready to explore the exciting terrain where container technology meets artificial intelligence.
