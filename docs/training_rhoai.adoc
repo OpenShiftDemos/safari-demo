@@ -2,12 +2,12 @@
 
 This is the fourth episode of our series that dives into training and deploying computer vision models at the https://developers.redhat.com/topics/edge-computing[edge]. And I have some good news: we're already past the halfway point. Have a look at the series outline and the remainder of the fascicles:
 
-* How to install single node OpenShift on AWS
-* How to install single node OpenShift on bare metal
-* Red Hat OpenShift AI installation and setup
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_aws.adoc[How to install single node OpenShift on AWS]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_baremetal.adoc[How to install single node OpenShift on bare metal]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/rhoai_setup.adoc[Red Hat OpenShift AI installation and setup]
 * **Model training in Red Hat OpenShift AI**
-* Prepare and label custom datasets with Label Studio
-* Deploy computer vision applications at the edge with MicroShift
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/label_dataset.adoc[Prepare and label custom datasets with Label Studio]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/deploy_edge.adoc[Deploy computer vision applications at the edge with MicroShift]
 
 == Introduction
 Training https://developers.redhat.com/topics/ai-ml[artificial intelligence (AI)] models is a pivotal process in the development of AI systems, demanding significant time and resources. The importance of this training phase cannot be overstated, as it is during this stage that the model learns to recognize patterns, make predictions, and perform tasks based on the provided data. 
@@ -21,7 +21,7 @@ Red Hat OpenShift AI deployment on single node OpenShift is currently not offici
 
 For this demo, we have decided to develop a real-time detection system that will provide efficient and accurate animal locations and some statistics within video sequences. In this article, we are going to show you the complete process for training the model based on a dataset of animal images previously labeled. It is worth mentioning that the https://www.kaggle.com/datasets/antoreepjana/animals-detection-images-dataset/[original set] of images and labels has been prepared in advance and https://github.com/dialvare/safari-demo/blob/main/notebooks/DatasetProcessing.ipynb[converted to YOLO] format to simplify the explanation. 
 
-However, if you want to build a demo to detect a custom set of objects, don't worry. We show you how to label your own image dataset in the article https://developers.redhat.com/articles/2024/04/29/prepare-and-label-custom-datasets-label-studio[Prepare and label custom datasets with Label Studio]. Then you will only have to replace the animals dataset with your custom one.
+However, if you want to build a demo to detect a custom set of objects, don't worry. We show you how to label your own image dataset in the article https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/label_dataset.adoc[Prepare and label custom datasets with Label Studio]. Then you will only have to replace the animals dataset with your custom one.
 
 == Project set up
 
@@ -50,6 +50,9 @@ Now that we have our newly created `safari` project, we can configure our workbe
 * - **Name:** `safari` (insert any preferred name).
 * - **Persistent storage size:** `80 GiB` (we can always extend it later if needed).
 3. Once you have completed the form, click **Create workbench**. You will be redirected to the project dashboard, where the workbench is starting. It could take a couple of minutes to pull the image before changing the status to Running. Your project should look similar to Figure 1.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/3.ai-project.png[title="In the project dashboard, the workbench status has switched to Running."]
+
 4. Now you can access the Workbench Interface by clicking **Open** and logging in using your kubeadmin credentials.
 
 That's it! Our workbench is ready and the next step will be to deploy the Notebook containing the training instructions. Now, jump to the model training section.
@@ -58,9 +61,13 @@ That's it! Our workbench is ready and the next step will be to deploy the Notebo
 
 The moment to directly work with the AI model has arrived. When you open your workbench, you will be directed to a Jupyter environment, a versatile computational platform used for interactive computing, data analysis, and scientific research. It provides a web-based interface that allows users to create files with code in multiple programming languages, as shown in Figure 2.
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/3.jupyter.png[title="Working with Jupyter Notebooks, you can create files containing live code, multimedia, and text in multiple programming languages."]
+
 Notebooks in Jupyter serve as interactive computing documents that combine live code, visualizations, explanatory text, and multimedia elements in a single interface, allowing users to execute code blocks individually, visualize results immediately, and document their processes in real-time. We can always spin up a new Python Notebook and start programming right from scratch, but OpenShift AI also makes it possible to import Git repositories and visualize the dataset and Notebooks directly from the Jupyter interface. 
 
 On the left side of the screen, you should see the Git icon (shown in Figure 3).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/3.git-clone.png[title="Look for this icon to access Git options in Jupyter."]
 
 Click **Clone a Repository** and paste the https://github.com/OpenShiftDemos/safari-demo[Safari GitHub repository URL]: `https://github.com/OpenShiftDemos/safari-demo`.
 
@@ -116,6 +123,8 @@ You will need to create a similar file if you are using a custom dataset, modify
 
 As you can see, this is the file that YOLO uses as a reference to know where the training and validation folders are located. We also need to let it know how many classes we have. In our case, there are `80` different animals. Next comes the list of the class names in order. This is important when labeling the dataset images. Figure 4 shows an example.
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/3.label-example.png[title="Each line in the text file corresponds to a boundary box in the image."]
+
 Each line in the text file corresponds to a boundary box. The first number on each line corresponds to the class name. In this example, `0` means `Zidane`, but in our model, `0=Hippopotamus`, as shown in the `data.yaml`.
 
 Now that we know the basics, it’s time to train the model. As you can see below, the code is quite simple. First, we load a pretrained model that the YOLO Ultralytics team provides. These weights will be used as a starting point for the training with the new animal data. Next, we just need to call the `train` function and fill in a couple of parameters:
@@ -160,6 +169,8 @@ Here you have the results (Figure 5):
 Image.open('/opt/app-root/src/safari-demo/notebooks/ultralytics/runs/detect/predict/sample.png')
 ----
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/3.bear.png[title="The trained model correctly identifies a brown bear in the image, which means that the model is working."]
+
 Our brown bear is detected correctly. Now that we know that our model is working, we just need to save the model in onnx format so that we can use it in a container image later:
 [source, bash]
 ----
@@ -178,8 +189,10 @@ That’s all we need for the training. We are ready to jump to the latest episod
 
 The following video explores the relevance of Red Hat's AI platform in order to train a computer vision model using a GPU to speed up the process.
 
+video::https://www.youtube.com/watch?v=Xu2KSI9V6Vw[]
+
 == Next steps
 
 In this tutorial, you used https://developers.redhat.com/products/red-hat-openshift-ai/overview[Red Hat OpenShift AI] to train a YOLO v8 model. Our exploration has not only delved into the intricacies of object detection but also showcased the integration of computer vision cutting-edge technology with the robust OpenShift platform. 
 
-As we bid farewell to this series, our final destination awaits in the next article, where we will witness the deployment of our trained model onto MicroShift. Join us in the grand finale: https://developers.redhat.com/articles/2024/05/03/deploy-computer-vision-applications-edge-microshift[Deploy computer vision applications at the edge with MicroShift].
+As we bid farewell to this series, our final destination awaits in the next article, where we will witness the deployment of our trained model onto MicroShift. Join us in the grand finale: https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/deploy_edge.adoc[Deploy computer vision applications at the edge with MicroShift].
