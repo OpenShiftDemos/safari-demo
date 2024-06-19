@@ -2,12 +2,12 @@
 
 This is the fifth chapter in our “computer vision at the https://developers.redhat.com/topics/edge-computing[edge]” series, in which we will dive into the preparation of a custom dataset. Below you can see all the different episodes in this series:
 
-* How to install single node OpenShift on AWS
-* How to install single node OpenShift on bare metal
-* Red Hat OpenShift AI installation and setup
-* Model training in Red Hat OpenShift AI
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_aws.adoc[How to install single node OpenShift on AWS]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/sno_baremetal.adoc[How to install single node OpenShift on bare metal]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/rhoai_setup.adoc[Red Hat OpenShift AI installation and setup]
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/training_rhoai.adoc[Model training in Red Hat OpenShift AI]
 * **Prepare and label custom datasets with Label Studio**
-* Deploy computer vision applications at the edge with MicroShift
+* https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/deploy_edge.adoc[Deploy computer vision applications at the edge with MicroShift]
 
 == Data labeling with Label Studio
 
@@ -286,6 +286,8 @@ label-studio-route     label-studio-route-labelstudio.sno.pemlab.rdu2.redhat.com
 
 Access the route from a web browser. If everything was configured correctly, the Label Studio login page should show (Figure 1). You can log in by creating a new account or using an existing one. 
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/4.labelstudio-login.png[title="Label Studio’s home page to log in or sign up to the application."]
+
 == Labeling a custom dataset
 
 Once you've accessed the webpage and logged in, we can begin labeling our custom dataset.
@@ -297,13 +299,22 @@ Once you've accessed the webpage and logged in, we can begin labeling our custom
 5. Navigate to the **Labeling Setup** tab, where we are going to select the template we will use to label our images. 
 6. Select the **Object Detection with Bounding Boxes**. This will open a new wizard to configure our different classes. 
 7. From there, we will create the new labels for our custom dataset. Delete the existing labels, type the new ones and click **Add**. In my case, I want to detect different aircrafts. My labels are `A380` and `B747`, as shown in Figure 2.
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/4.labels.png[title="Creation of two new custom labels for the A380 and B747 classes."]
+
 8. After that, we'll select **Save** in the upper-right corner to begin labeling our data. 
 
-From the project dashboard, select **Label all tasks**, which will take you to the first image to label. To select a label, you can either click the corresponding label or press the number on your keyboard that corresponds to the label. For example, the `A380` is labeled as `1`. After pressing 1, click and drag on the image to create a bounding box where the aircraft is located (Figure 3). 
+From the project dashboard, select **Label all tasks**, which will take you to the first image to label. To select a label, you can either click the corresponding label or press the number on your keyboard that corresponds to the label. For example, the `A380` is labeled as `1`. After pressing 1, click and drag on the image to create a bounding box where the aircraft is located (Figure 3).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/4.a380.png[title="Generating a bounding box for the A380 aircraft."]
 
 Remember to create a different box for each aircraft present in the image. If in the same image both aircraft types coexist, make sure you are selecting the corresponding label for each one. When done, select the next image on the left side of the screen. Figure 4 shows another example for a `B747` (class `2`).
 
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/4.b747.png[title="Generating a bounding box for the B747 aircraft."]
+
 Once you are done labeling, **Submit** them, and return to the project dashboard. In the upper-right corner, select **Export**. Since we will use this data to train YOLO object detection models, export the data in the **YOLO** format (Figure 5).
+
+image::https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/images/4.export.png[title="Selection of YOLO format for the dataset export."]
 
 This will trigger the prepared and labeled dataset download. When finished, unzip the file. Now, let’s take a look at the folders that it includes: 
 
@@ -317,8 +328,10 @@ Now that we have our dataset ready, we can push all these files into a Git repos
 
 Watch the following video demo to see how to prepare a custom dataset for AI/ML model training.
 
+video::https://www.youtube.com/watch?v=RJvr0raAh3A[]
+
 == Next steps
 
 In this article, you learned about the importance of accurately labeled data. To help us put this into practice, we have deployed Label Studio in our OpenShift cluster to label our custom data. 
 
-In the next article, we will https://developers.redhat.com/articles/2024/04/29/model-training-red-hat-openshift-ai[train a YOLO object detection model with our newly labeled data using Red Hat OpenShift AI]. 
+In the next article, we will https://github.com/OpenShiftDemos/safari-demo/blob/main/docs/training_rhoai.adoc[train a YOLO object detection model with our newly labeled data using Red Hat OpenShift AI]. 
